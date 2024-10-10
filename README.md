@@ -45,6 +45,6 @@ The architecture follows modern best practices for a clean, readable codebase:
 
 
 ## To Do List
-- Add models page to for further details on all the models available
+- Add models page for further details on all the models available
 - Information page that explains image generation and explains how to leverage specific models for your advantage
  (ex. trigger words, prompt weighting and etc) 
