@@ -24,7 +24,7 @@ AI image generation uses advanced deep learning models to convert text into visu
 
 ### Deployment
 **Free instances spin down after periods of inactivity. After periods of inactivity requests can take up to 50 seconds to process.**
-- The project is designed for deployment in mind, offering scalability as user demand grows.
+- The project is designed with deployment in mind, offering scalability as user demand grows.
 
 ## Key Features
 
