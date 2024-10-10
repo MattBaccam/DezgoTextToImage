@@ -23,6 +23,7 @@ AI image generation uses advanced deep learning models to convert text into visu
 - **Dezgo API**: Integrates with the Dezgo platform, allowing the application to tap into powerful AI models to generate images based on user prompts. This API-driven approach allows for easy expansion to new models and functionalities.
 
 ### Deployment
+**Free instances spin down after periods of inactivity. After periods of inactivity requests can take up to 50 seconds to process.**
 - The project is designed for deployment in any cloud-based infrastructure, offering scalability as user demand grows.
 
 ## Key Features
