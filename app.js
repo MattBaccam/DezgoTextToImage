@@ -3,11 +3,12 @@ import { rateLimit } from "express-rate-limit";
 import bodyParser from "body-parser";
 import axios from "axios";
 import dotenv from "dotenv";
-import {createError} from "./public/js/createDezgoRequestError.js";
+import {createDezgoError} from "./public/js/createDezgoRequestError.js";
 
 const app = express();
 const port = process.env.PORT || 3000;
 
+app.set('view engine', 'ejs');
 app.use(express.static("public"));
 app.use(bodyParser.urlencoded({extended: true}));
 dotenv.config();
@@ -25,11 +26,17 @@ const rateLimiter = rateLimit({
     }
 });
 
-
+//Home Page
 app.get("/", (req, res) =>{
         res.render("index.ejs");
 });
 
+//Home Page
+app.get("/models", (req, res) =>{
+    res.render("models.ejs");
+});
+
+//Endpoint for generating images
 app.use("/generate-image", rateLimiter);//rate limits this post request
 app.post("/generate-image", async (req, res) =>{
     try {
@@ -52,7 +59,8 @@ app.post("/generate-image", async (req, res) =>{
     const imageData = `data:image/png;base64,${Buffer.from(response.data, "binary").toString("base64")}`;
     res.json({imageData});
     } catch (error) {
-        createError(res, error);
+        const formattedError = createDezgoError(error);
+        res.status(formattedError.statusCode).json({ customMessage: formattedError.customMessage });
     }
 });
 

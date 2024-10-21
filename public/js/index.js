@@ -1,20 +1,70 @@
 import {createAlert} from "./createAlert.js";
 import {addLoadingToButton, removeLoadingFromButton} from "./buttonLoading.js";
 import {getAiImageModels} from "./dezgoAiModels.js";
+import {createDezgoError} from "./createDezgoRequestError.js";
 
-
-//This sets up the page for us after its fully loaded
-window.addEventListener("load", function() {
-    getAiImageModels();
+//This is going to setup the stuff that can be setup after dom has been loaded
+document.addEventListener("DOMContentLoaded", function() {
     //Getting the sliders values & sliders labels
     var guidance = document.getElementById("guidance"); 
-    var guidance_label = document.getElementById("guidance_label");
+    var guidance_label_span = document.querySelector("#guidance_label span"); 
     var steps = document.getElementById("steps"); 
-    var steps_label = document.getElementById("steps_label");
-    
-    //Assigning the values to the corresponding labels
-    guidance_label.innerHTML = `Guidance (-20->20): ${guidance.value}`;
-    steps_label.innerHTML = `Steps (10->150): ${steps.value}`;
+    var steps_label_span = document.querySelector("#steps_label span"); 
+
+
+    guidance_label_span.textContent = `Guidance (-20 -> 20): ${guidance.value}`;
+    steps_label_span.textContent = `Steps (10 -> 150): ${steps.value}`;
+
+    // Once changed, the designated label will be updated
+    guidance.addEventListener("input", function() {
+        guidance_label_span.textContent = `Guidance (-20 -> 20): ${this.value}`;
+    }); 
+
+    steps.addEventListener("input", function() {
+        steps_label_span.textContent = `Steps (10 -> 150): ${this.value}`;
+    });
+});
+
+//This sets up the page for us after its fully loaded (including external resources)
+window.addEventListener("load", function() {
+    var typed = new Typed('h1', {
+        strings: ['Ai', 'AI', 'AI Image Generator'],
+        typeSpeed: 60,
+        smartBackspace: true,
+    });
+
+    const generateButton = document.getElementById("generateButton");
+    generateButton.disabled = true;
+
+    addLoadingToButton('modelLabel');
+
+    getAiImageModels()
+    .then(models => {
+        models.forEach(model => {
+            const option = document.createElement('option');
+            option.value = model.id;
+            option.textContent = model.name;
+            select.appendChild(option);
+        })
+    })
+    .catch(error =>{
+        const dezgoError = createDezgoError(error);
+        const defaultModel = document.createElement('option');
+        defaultModel.value = 'realdream_12';
+        defaultModel.textContent = 'realdream_12';
+        select.appendChild(defaultModel);
+        createAlert('modelFetchError', 'alert-danger', `${dezgoError.customMessage}. Defaulting to realdream_12.`);
+    })
+    .finally(() => {
+        removeLoadingFromButton('modelLabel');
+        generateButton.disabled = false;
+    });
+
+    const select = document.createElement('select');
+    select.setAttribute("id", "model");
+    select.setAttribute('name', 'model');
+    select.classList.add('w-75');
+    document.getElementById('modelLabel').appendChild(select);
     
     //Activating tooltips in for bootstrap
     var tooltipTriggerList = [].slice.call(document.querySelectorAll("[data-bs-toggle='tooltip']"))
@@ -23,19 +73,11 @@ window.addEventListener("load", function() {
     })
 });
 
-//Once changed the designated label will be updated
-document.getElementById("guidance").addEventListener("input", function() {
-    document.getElementById("guidance_label").innerHTML = `Guidance (-20->20): ${this.value}`;
-}); 
-document.getElementById("steps").addEventListener("input", function() {
-    document.getElementById("steps_label").innerHTML = `Steps (10->150): ${this.value}`;
-});
-
 //Handles the users form submission
 //Allows us to update the image asynchronusly without having to reload the page everytime
 document.getElementById("ai_image_form").addEventListener("submit", async function(event){
     event.preventDefault(); // Prevents the default form submission so it can only be handled by JS
-
+    
     try {
         addLoadingToButton("generateButton");
         generateUIBALLLoader();
@@ -67,20 +109,17 @@ document.getElementById("ai_image_form").addEventListener("submit", async functi
             // Repeat every 1 second
             generateButton.innerText = `${timeUntilReset}s left`;//setting this here so its more on sync with the notification
             const countDownInterval = setInterval(() => {
-                generateButton.innerText = `${timeUntilReset}s left`;
+                generateButton.innerHTML = `${timeUntilReset}s left`;
                 timeUntilReset--;
                 if(timeUntilReset < 0) {
                     clearInterval(countDownInterval);
-                    generateButton.innerText = 'Generate Image';
+                    generateButton.innerHTML = '&emsp;Generate Image&emsp;';
                 }
             }, 1000);
 
         }
-        else if (error.response && error.response.data && error.response.data.requestError) {
-            createAlert('requestError', 'alert-danger', error.response.data.requestError);
-          }
         else {
-            createAlert('unknownError', 'alert-danger', 'An unknown error occurred. Please try again.');
+            createAlert('unknownError', 'alert-danger', createDezgoError(error).customMessage);
         }
     }
     finally{
@@ -108,26 +147,36 @@ function removeGeneratedImage(){
 
 // Creates loading animation where picture goes
 function generateUIBALLLoader(){
-    const loading = document.createElement("div");
-    loading.setAttribute("id", "loading");
-    loading.style.maxWidth = "100%";
-    loading.style.height = "auto";
-    loading.innerHTML = `  <l-quantum
-                                size="150"
-                                speed="2" 
-                                color="#313b4b" 
-                                ></l-quantum>`;//Code from UIBall LDRS 
+    let generatedImageCol = document.getElementById("generatedImageCol");
+    let loading = document.getElementById("loading");
+    if(!generatedImageCol){
+        generatedImageCol = document.createElement("div");
+        generatedImageCol.setAttribute("id", "generatedImageCol");
+        generatedImageCol.classList.add("col-lg-6", "col-12");
+    }
+    if(!loading){
+        loading = document.createElement("div");
+        loading.setAttribute("id", "loading");
+        loading.style.maxWidth = "100%";
+        loading.style.height = "auto";
+        loading.innerHTML = `  <l-quantum
+                                    size="150"
+                                    speed="2" 
+                                    color="#313b4b" 
+                                    ></l-quantum>`;//Code from UIBall LDRS 
+    }
 
     if(document.getElementById("generatedImage")){
         removeGeneratedImage();
     }
     
-    document.getElementById("generatedImageCol").appendChild(loading);
+    document.getElementById("row1").appendChild(generatedImageCol);
+    generatedImageCol.appendChild(loading);
 }
 
 // Removes the loading animation where the picture goes
 function removeUIBALLLoader(){
-    if(loading) {
+    if(document.getElementById("loading")) {
         document.getElementById("generatedImageCol").removeChild(loading);
     }
 }

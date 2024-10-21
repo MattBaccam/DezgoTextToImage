@@ -3,7 +3,7 @@
 // Intended for server side requests
 // res = the response in which the error occured
 // error = the error  in the catch where this was called
-export function createError(res, error){
+export function createDezgoError(error){
     let statusCode = 500;
     let customMessage = "An unknown error occurred.";
 
@@ -29,8 +29,12 @@ export function createError(res, error){
     } else if (error.request) {
         customMessage = "No response from API. Please check your network connection.";
     } else {
-        customMessage = `Error in request setup: ${error.message}`;
+        customMessage = customMessage;
     }
 
-    res.status(statusCode).json({ requestError: customMessage });
+    return {
+        statusCode,
+        originalError: error.message || "Unknown error",
+        customMessage
+    };
 }

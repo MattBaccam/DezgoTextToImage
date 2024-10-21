@@ -1,0 +1,21 @@
+body{
+    font-family: monospace;
+    background-color: #181c1c;
+}
+
+.card{
+    background-color: #6f6f6f;
+    margin: 1.5em;
+    border: 2px solid #4F4F4F; /* Default border: 2px thick, solid style, black color */
+    padding: 10px; /* Adds some space inside the element between the border and content */
+    transition: border 0.3s ease; /* Smooth transition effect when the border changes */
+}
+.card:hover {
+    border: 2px solid #A9A9A9; /* Change the border to blue when hovered */
+  }
+
+h1{
+    padding-top: .5em;
+    color: red;
+    font-family: "Lucida Console";
+}

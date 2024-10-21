@@ -1,7 +1,11 @@
-//Loading 
+// Loading 
+// Made this work on none buttons aswell 
+//  Checks to see if the instanceof userButton is actually a button and if so it disables it
 export function addLoadingToButton(button){
     const userButton = document.getElementById(button);
-    userButton.disabled = true;
+    if(userButton instanceof HTMLButtonElement){
+        userButton.disabled = true;
+    }
     const spinner = document.createElement("span");
     spinner.classList.add("spinner-border", "spinner-border-sm");
     spinner.setAttribute("id", "spinner");
@@ -10,10 +14,14 @@ export function addLoadingToButton(button){
     userButton.appendChild(spinner);
 }
 
-//Remove loading 
+// Remove loading 
+// Made this work on none buttons aswell 
+//  Checks to see if the instanceof userButton is actually a button and if so it disables it
 export function removeLoadingFromButton(button){
     const userButton = document.getElementById(button);
-
+    if(userButton instanceof HTMLButtonElement){
+        userButton.disabled = true;
+    }
     const spinner = document.getElementById("spinner");
     const statusText = document.getElementById("statusText");
     const loading = document.getElementById("loading");
@@ -23,5 +31,7 @@ export function removeLoadingFromButton(button){
     if(userButton.contains(statusText)) {
         userButton.removeChild(statusText);
     }
-    userButton.disabled = false;
+    if(userButton instanceof HTMLButtonElement){    
+        userButton.disabled = false;
+    }
 }
